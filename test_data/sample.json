@@ -1,0 +1,12 @@
+{
+  "segments": [
+    {
+      "text": "Bonjour, comment allez-vous?",
+      "speaker": "SPEAKER1"
+    },
+    {
+      "text": "Je vais bien, merci. Et vous?",
+      "speaker": "SPEAKER2"
+    }
+  ]
+}
