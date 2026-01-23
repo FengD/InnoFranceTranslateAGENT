@@ -103,13 +103,16 @@ class VLLMProvider(BaseLLM):
         logger.debug(f"Messages: {messages}")
         
         try:
-            completion = self._client.chat.completions.create(
-                model=self._config.model or "default",
-                temperature=self._config.temperature,
-                top_p=self._config.top_p,
-                messages=messages,
-                response_format=response_format
-            )
+            request_kwargs = {
+                "model": self._config.model or "default",
+                "temperature": self._config.temperature,
+                "top_p": self._config.top_p,
+                "messages": messages,
+            }
+            if response_format:
+                request_kwargs["response_format"] = response_format
+
+            completion = self._client.chat.completions.create(**request_kwargs)
             logger.debug(f"Received response from VLLM API: {completion}")
             return completion.choices[0].message.content
         except Exception as e:
@@ -128,46 +131,20 @@ class VLLMProvider(BaseLLM):
         Returns:
             Constructed user message and response format
         """
-        messages = [{
-            "role": "user",
-            "content": [
-                {
-                    "type": "text",
-                    "text": msg
-                }
-            ],
-        }]
-        
-        # If there is image data, add it to the message
-        if images:
-            messages[0]["content"].append({
-                "type": "image_url",
-                "image_url": {
-                    "url": images,
-                }
-            })
+        messages = []
+        if self._config.user_msg:
+            messages.append({"role": "system", "content": self._config.user_msg})
 
-        # Define response format
-        response_format = {
-            "type": "json_schema",
-            "json_schema": {
-                "name": "translation_result",
-                "schema": {
-                    "type": "object",
-                    "properties": {
-                        "translated_text": {
-                            "description": "The translated text",
-                            "type": "string"
-                        },
-                        "explanation": {
-                            "description": "Explanation of the translation",
-                            "type": "string"
-                        }
-                    },
-                    "required": ["translated_text"],
-                    "additionalProperties": False
-                }
-            }
-        }
-        
+        if images:
+            messages.append({
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": msg},
+                    {"type": "image_url", "image_url": {"url": images}},
+                ],
+            })
+        else:
+            messages.append({"role": "user", "content": msg})
+
+        response_format = self._config.response_format
         return messages, response_format

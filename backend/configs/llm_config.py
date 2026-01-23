@@ -39,8 +39,8 @@ class LLMConfig:
     model: Optional[str] = None
     response_format: Optional[object] = None
     user_msg: str = ""
-    temperature: float = 0.0
-    top_p: float = 0.9
+    temperature: float = 0.1
+    top_p: float = 0.4
     
 def arg_or_env(args, arg_name: str, env_name: str, default=None):
     """
@@ -65,8 +65,8 @@ class LLMConfig:
     model: Optional[str] = None
     response_format: Optional[object] = None
     user_msg: str = ""
-    temperature: float = 0.0
-    top_p: float = 0.9
+    temperature: float = 0.1
+    top_p: float = 0.4
 
     @classmethod
     def from_args(cls, args: argparse.Namespace, llm_type: 'LLMType') -> 'LLMConfig':
@@ -79,7 +79,7 @@ class LLMConfig:
             )
             config.base_url = arg_or_env(
                 args, 'openai_api_base', 'OPENAI_API_BASE',
-                "https://api.openai.com/v1/chat/completions"
+                "https://api.openai.com/v1"
             )
             config.model = arg_or_env(
                 args, 'openai_model', 'OPENAI_MODEL', "gpt-3.5-turbo"
@@ -100,7 +100,7 @@ class LLMConfig:
             )
             config.base_url = arg_or_env(
                 args, 'qwen_api_base', 'QWEN_API_BASE',
-                "https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation"
+                "https://dashscope.aliyuncs.com/compatible-mode/v1"
             )
             config.model = arg_or_env(
                 args, 'qwen_model', 'QWEN_MODEL', "qwen-turbo"
@@ -112,7 +112,7 @@ class LLMConfig:
             )
             config.base_url = arg_or_env(
                 args, 'glm_api_base', 'GLM_API_BASE',
-                "https://open.bigmodel.cn/api/paas/v4/chat/completions"
+                "https://open.bigmodel.cn/api/paas/v4"
             )
             config.model = arg_or_env(
                 args, 'glm_model', 'GLM_MODEL', "glm-4"
@@ -124,7 +124,7 @@ class LLMConfig:
             )
             config.base_url = arg_or_env(
                 args, 'deepseek_api_base', 'DEEPSEEK_API_BASE',
-                "https://api.deepseek.com/v1/chat/completions"
+                "https://api.deepseek.com"
             )
             config.model = arg_or_env(
                 args, 'deepseek_model', 'DEEPSEEK_MODEL', "deepseek-chat"

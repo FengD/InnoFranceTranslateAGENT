@@ -87,21 +87,23 @@ print(result)
 | 变量名 | 默认值 | 说明 |
 |--------|--------|------|
 | OPENAI_API_KEY | "" | OpenAI API密钥 |
-| OPENAI_API_BASE | "https://api.openai.com/v1/chat/completions" | OpenAI API地址 |
+| OPENAI_API_BASE | "https://api.openai.com/v1" | OpenAI API地址 |
 | OPENAI_MODEL | "gpt-3.5-turbo" | OpenAI模型名称 |
 | OLLAMA_API_BASE | "http://localhost:11434/api/generate" | Ollama API地址 |
 | OLLAMA_MODEL | "llama2" | Ollama模型名称 |
 | DEEPSEEK_API_KEY | "" | DeepSeek API密钥 |
-| DEEPSEEK_API_BASE | "https://api.deepseek.com/v1/chat/completions" | DeepSeek API地址 |
+| DEEPSEEK_API_BASE | "https://api.deepseek.com" | DeepSeek API地址 |
 | DEEPSEEK_MODEL | "deepseek-chat" | DeepSeek模型名称 |
 | QWEN_API_KEY | "" | 通义千问API密钥 |
-| QWEN_API_BASE | "https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation" | 通义千问API地址 |
-| QWEN_MODEL | "qwen-plus" | 通义千问模型名称 |
+| QWEN_API_BASE | "https://dashscope.aliyuncs.com/compatible-mode/v1" | 通义千问API地址 |
+| QWEN_MODEL | "qwen-turbo" | 通义千问模型名称 |
 | GLM_API_KEY | "" | 智谱清言API密钥 |
-| GLM_API_BASE | "https://open.bigmodel.cn/api/paas/v4/chat/completions" | 智谱清言API地址 |
+| GLM_API_BASE | "https://open.bigmodel.cn/api/paas/v4" | 智谱清言API地址 |
 | GLM_MODEL | "glm-4" | 智谱清言模型名称 |
 | TEMPERATURE | 0.3 | 模型温度参数 |
 | OPENAI_MAX_TOKENS | None | 最大生成token数（适用于SGLang/VLLM等） |
+| INPUT_MAX_TOKENS | 3000 | 单次请求最大输入token数（估算值） |
+| TOKEN_CHAR_RATIO | 4 | 字符到token的估算比例 |
 | DEFAULT_MODEL | "openai" | 默认模型 |
 | LOG_LEVEL | "INFO" | 日志级别 |
 | LOG_FILE | "logs/translation_agent.log" | 日志文件路径 |
@@ -147,11 +149,11 @@ translate_agent/
 
 ### 使用SGLang/VLLM
 
-本项目现已支持SGLang和VLLM提供的兼容OpenAI API的接口。只需将 `OPENAI_API_BASE` 环境变量指向您的SGLang/VLLM服务地址即可：
+本项目现已支持SGLang和VLLM提供的兼容OpenAI API的接口。请使用对应的环境变量指向服务地址：
 
 ```bash
-export OPENAI_API_BASE="http://localhost:30000/v1/chat/completions"  # SGLang示例
-export OPENAI_API_BASE="http://localhost:8000/v1/completions"        # VLLM示例
+export SGLANG_API_BASE="http://localhost:30000/v1"  # SGLang示例
+export VLLM_API_BASE="http://localhost:8000/v1"     # VLLM示例
 ```
 
 对于需要限制生成长度的场景，可以设置 `OPENAI_MAX_TOKENS` 环境变量：
@@ -182,7 +184,7 @@ curl -X POST http://localhost:5000/translate \
   -H "X-API-Key: your-sglang-vllm-api-key"  # 如果需要API密钥
 ```
 
-注意：当使用SGLang或VLLM时，请确保已正确配置 `OPENAI_API_BASE` 环境变量指向相应的服务地址。
+注意：当使用SGLang或VLLM时，请确保已正确配置对应的 `SGLANG_API_BASE` 或 `VLLM_API_BASE` 环境变量。
 
 ### 扩展功能
 

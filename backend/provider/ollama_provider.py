@@ -29,7 +29,7 @@ class OllamaProvider(BaseLLM):
         super().__init__(config)
         # If no base_url in config, get from environment variables
         if not self._config.base_url:
-            self._config.base_url = os.environ.get("OLLAMA_API_URL", "http://localhost:11434/api/generate")
+            self._config.base_url = os.environ.get("OLLAMA_API_BASE", "http://localhost:11434/api/generate")
 
     def call_llm(self, prompt: str, images: Optional[Union[str, list[str]]] = None):
         """
@@ -42,9 +42,10 @@ class OllamaProvider(BaseLLM):
         Returns:
             Result returned by API
         """
+        system_prefix = f"{self._config.user_msg}\n\n" if self._config.user_msg else ""
         payload = {
             "model": self._config.model or "llama2",
-            "prompt": prompt,
+            "prompt": f"{system_prefix}{prompt}",
             "stream": False,
             "format": "json",
             "options": {

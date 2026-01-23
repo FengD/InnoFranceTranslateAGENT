@@ -24,6 +24,8 @@ templates = Jinja2Templates(directory="templates")
 llm_config = LLMConfig()
 agent = TranslationAgent(config.get_all(), llm_config, LLM_REGISTER)
 
+logger.info(f"LLM Config: {llm_config}")
+
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
     """Homepage"""

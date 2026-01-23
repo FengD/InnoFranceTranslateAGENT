@@ -56,10 +56,13 @@ Then access `http://localhost:5000` in your browser
 
 ```bash
 # Command line usage
-python main.py --input test_data/sample.json --output result.txt --model openai
+python main.py --input test_data/sample.json --output result.txt --provider openai
 
 # Or without specifying output to print to stdout
-python main.py --input test_data/sample.json --model openai
+python main.py --input test_data/sample.json --provider openai
+
+# Override model name when needed
+python main.py --input test_data/sample.json --provider deepseek --model-name deepseek-chat
 ```
 
 ### Using TranslationAgent in Python Code
@@ -99,22 +102,28 @@ print(result)
 | Variable Name | Default Value | Description |
 |---------------|---------------|-------------|
 | OPENAI_API_KEY | "" | OpenAI API key |
-| OPENAI_API_BASE | "https://api.openai.com/v1/chat/completions" | OpenAI API address |
+| OPENAI_API_BASE | "https://api.openai.com/v1" | OpenAI API address |
 | OPENAI_MODEL | "gpt-3.5-turbo" | OpenAI model name |
 | OLLAMA_API_BASE | "http://localhost:11434/api/generate" | Ollama API address |
 | OLLAMA_MODEL | "llama2" | Ollama model name |
 | DEEPSEEK_API_KEY | "" | DeepSeek API key |
-| DEEPSEEK_API_BASE | "https://api.deepseek.com/v1/chat/completions" | DeepSeek API address |
+| DEEPSEEK_API_BASE | "https://api.deepseek.com" | DeepSeek API address |
 | DEEPSEEK_MODEL | "deepseek-chat" | DeepSeek model name |
 | QWEN_API_KEY | "" | Tongyi Qianwen API key |
-| QWEN_API_BASE | "https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation" | Tongyi Qianwen API address |
-| QWEN_MODEL | "qwen-plus" | Tongyi Qianwen model name |
+| QWEN_API_BASE | "https://dashscope.aliyuncs.com/compatible-mode/v1" | Tongyi Qianwen API address |
+| QWEN_MODEL | "qwen-turbo" | Tongyi Qianwen model name |
 | GLM_API_KEY | "" | Zhipu AI API key |
-| GLM_API_BASE | "https://open.bigmodel.cn/api/paas/v4/chat/completions" | Zhipu AI API address |
+| GLM_API_BASE | "https://open.bigmodel.cn/api/paas/v4" | Zhipu AI API address |
 | GLM_MODEL | "glm-4" | Zhipu AI model name |
 | TEMPERATURE | 0.3 | Model temperature parameter |
 | OPENAI_MAX_TOKENS | None | Maximum generated tokens (for SGLang/VLLM, etc.) |
-| DEFAULT_MODEL | "openai" | Default model |
+| INPUT_MAX_TOKENS | 3000 | Approximate max input tokens per request |
+| TOKEN_CHAR_RATIO | 4 | Approximate chars-per-token ratio |
+| SGLANG_API_BASE | "http://localhost:30000/v1" | SGLang API address |
+| SGLANG_MODEL | "default" | SGLang model name |
+| VLLM_API_BASE | "http://localhost:8000/v1" | VLLM API address |
+| VLLM_MODEL | "default" | VLLM model name |
+| DEFAULT_MODEL | "openai" | Default provider |
 | LOG_LEVEL | "INFO" | Log level |
 | LOG_FILE | "logs/translation_agent.log" | Log file path |
 | PROMETHEUS_PORT | 8000 | Prometheus metrics port |
@@ -161,11 +170,11 @@ translate_agent/
 
 ### Using SGLang/VLLM
 
-This project now supports SGLang and VLLM provided OpenAI API compatible interfaces. Simply point the `OPENAI_API_BASE` environment variable to your SGLang/VLLM service address:
+This project now supports SGLang and VLLM OpenAI-compatible interfaces. Use their own provider flags and set the corresponding API base:
 
 ```bash
-export OPENAI_API_BASE="http://localhost:30000/v1/chat/completions"  # SGLang example
-export OPENAI_API_BASE="http://localhost:8000/v1/completions"        # VLLM example
+export SGLANG_API_BASE="http://localhost:30000/v1"  # SGLang example
+export VLLM_API_BASE="http://localhost:8000/v1"     # VLLM example
 ```
 
 For scenarios requiring generation length limits, you can set the `OPENAI_MAX_TOKENS` environment variable:
@@ -196,7 +205,7 @@ curl -X POST http://localhost:5000/translate \
   -H "X-API-Key: your-sglang-vllm-api-key"  # If API key is required
 ```
 
-Note: When using SGLang or VLLM, make sure you have correctly configured the `OPENAI_API_BASE` environment variable to point to the corresponding service address.
+Note: When using SGLang or VLLM, make sure you have correctly configured the matching `SGLANG_API_BASE` or `VLLM_API_BASE` environment variable.
 
 ### Extending Functionality
 

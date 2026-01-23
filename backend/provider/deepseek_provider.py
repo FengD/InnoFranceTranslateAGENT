@@ -33,10 +33,10 @@ class DeepSeekProvider(BaseLLM):
         if not self._config.api_key:
             self._config.api_key = os.getenv("DEEPSEEK_API_KEY", "")
         
-        # Initialize DeepSeek client
+        # Initialize DeepSeek client (OpenAI-compatible)
         self._client = OpenAI(
-            api_key=self._config.api_key, 
-            base_url=self._config.base_url or "https://api.deepseek.com/v1/chat/completions"
+            api_key=self._config.api_key,
+            base_url=self._config.base_url or "https://api.deepseek.com"
         )
     
     def call_llm(self, prompt: str, images: Optional[Union[str, list[str]]] = None):
@@ -51,14 +51,18 @@ class DeepSeekProvider(BaseLLM):
             Result returned by API
         """
         messages, response_format = self._user_msg(prompt, images)
-        
-        completion = self._client.chat.completions.create(
-            model=self._config.model or "deepseek-chat",
-            temperature=self._config.temperature,
-            top_p=self._config.top_p,
-            messages=messages,
-            response_format=response_format
-        )
+
+        request_kwargs = {
+            "model": self._config.model or "deepseek-chat",
+            "temperature": self._config.temperature,
+            "top_p": self._config.top_p,
+            "messages": messages,
+        }
+        # DeepSeek currently does not support json_schema response_format
+        if response_format:
+            request_kwargs["response_format"] = response_format
+
+        completion = self._client.chat.completions.create(**request_kwargs)
         return completion.choices[0].message.content
         
         
@@ -73,46 +77,21 @@ class DeepSeekProvider(BaseLLM):
         Returns:
             Constructed user message and response format
         """
-        messages = [{
-            "role": "user",
-            "content": [
-                {
-                    "type": "text",
-                    "text": msg
-                }
-            ],
-        }]
-        
-        # If there is image data, add it to the message
-        if images:
-            messages[0]["content"].append({
-                "type": "image_url",
-                "image_url": {
-                    "url": images,
-                }
-            })
+        messages = []
+        if self._config.user_msg:
+            messages.append({"role": "system", "content": self._config.user_msg})
 
-        # Define response format
-        response_format = {
-            "type": "json_schema",
-            "json_schema": {
-                "name": "translation_result",
-                "schema": {
-                    "type": "object",
-                    "properties": {
-                        "translated_text": {
-                            "description": "The translated text",
-                            "type": "string"
-                        },
-                        "explanation": {
-                            "description": "Explanation of the translation",
-                            "type": "string"
-                        }
-                    },
-                    "required": ["translated_text"],
-                    "additionalProperties": False
-                }
-            }
-        }
+        if images:
+            messages.append({
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": msg},
+                    {"type": "image_url", "image_url": {"url": images}},
+                ],
+            })
+        else:
+            messages.append({"role": "user", "content": msg})
         
+        # DeepSeek doesn't support json_schema response_format; keep optional override
+        response_format = self._config.response_format
         return messages, response_format

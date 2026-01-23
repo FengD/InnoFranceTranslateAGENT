@@ -53,14 +53,17 @@ class TranslationAgent:
             # Preprocess input data
             processed_input = self._preprocess_input(input_data)
             
-            # Construct prompt
-            prompt = self._construct_prompt(processed_input)
-            
-            # Call specified model API
-            translation_result = self._call_model_api(prompt, model_type)
-            
-            # Post-process results
-            final_result = self._postprocess_output(translation_result)
+            # Split input to avoid exceeding token limits
+            input_chunks = self._split_input_by_tokens(processed_input)
+
+            # Call specified model API for each chunk
+            results = []
+            for chunk in input_chunks:
+                prompt = self._construct_prompt(chunk)
+                translation_result = self._call_model_api(prompt, model_type)
+                results.append(self._postprocess_output(translation_result))
+
+            final_result = "\n".join([r for r in results if r.strip()])
             
             # Record success metrics
             duration = time.time() - start_time
@@ -107,7 +110,73 @@ class TranslationAgent:
         Returns:
             Complete prompt
         """
-        return f"{self.prompt_template}\n\nPlease translate the following content:\n{input_text}"
+        return f"Please translate the following content:\n{input_text}"
+
+    def _estimate_tokens(self, text: str) -> int:
+        """Estimate token count using a simple character ratio heuristic."""
+        ratio = self.config.get("TOKEN_CHAR_RATIO", 4)
+        try:
+            ratio = float(ratio)
+        except (TypeError, ValueError):
+            ratio = 4
+        if ratio <= 0:
+            ratio = 4
+        return max(1, int(len(text) / ratio))
+
+    def _split_input_by_tokens(self, input_text: str) -> list[str]:
+        """Split long input into chunks based on approximate token count."""
+        max_tokens = self.config.get("INPUT_MAX_TOKENS", 3000)
+        try:
+            max_tokens = int(max_tokens)
+        except (TypeError, ValueError):
+            max_tokens = 3000
+        if max_tokens <= 0:
+            return [input_text]
+
+        system_tokens = self._estimate_tokens(self.prompt_template)
+        overhead_tokens = self._estimate_tokens("Please translate the following content:\n")
+        available_tokens = max(max_tokens - system_tokens - overhead_tokens, 200)
+
+        if self._estimate_tokens(input_text) <= available_tokens:
+            return [input_text]
+
+        lines = input_text.splitlines()
+        chunks: list[str] = []
+        current: list[str] = []
+        current_tokens = 0
+
+        def flush_current():
+            nonlocal current, current_tokens
+            if current:
+                chunks.append("\n".join(current))
+                current = []
+                current_tokens = 0
+
+        try:
+            ratio = float(self.config.get("TOKEN_CHAR_RATIO", 4))
+        except (TypeError, ValueError):
+            ratio = 4
+        if ratio <= 0:
+            ratio = 4
+        max_chars = max(int(available_tokens * ratio), 200)
+
+        for line in lines:
+            line_tokens = self._estimate_tokens(line)
+            if line_tokens > available_tokens:
+                flush_current()
+                for i in range(0, len(line), max_chars):
+                    chunks.append(line[i:i + max_chars])
+                continue
+
+            projected = current_tokens + line_tokens + (1 if current else 0)
+            if projected > available_tokens:
+                flush_current()
+
+            current.append(line)
+            current_tokens = current_tokens + line_tokens + (1 if current_tokens > 0 else 0)
+
+        flush_current()
+        return chunks
     
     def _call_model_api(self, prompt: str, model_type: str) -> str:
         """
@@ -127,6 +196,7 @@ class TranslationAgent:
             llm_config = self.llm_config
         else:
             llm_config = LLMConfig.from_args(type('Args', (), self.config)(), llm_type)
+        llm_config.user_msg = self.prompt_template
         llm: BaseLLM = self.llm_register.create_llm_instance(llm_config)
         
         # Call LLM
