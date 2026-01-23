@@ -1,95 +1,111 @@
-from flask import Flask, request, render_template, jsonify, redirect, url_for
+from fastapi import FastAPI, Request, Form, UploadFile, File
+from fastapi.responses import JSONResponse, HTMLResponse
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 import json
 import os
 from translator_agent import TranslationAgent
 from config import config
 from logger import setup_logging, get_logger
 from utils import load_input_data, validate_input_data
+from backend.configs.llm_config import LLMConfig, LLMType
+from backend.provider.llm_provider import LLM_REGISTER
+import uvicorn
 
-# 设置日志
+# Setup logging
 setup_logging(config.get("LOG_LEVEL", "INFO"), config.get("LOG_FILE", "logs/web_app.log"))
 logger = get_logger(__name__)
 
-app = Flask(__name__)
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 最大16MB文件
+app = FastAPI(title="Translation Agent API", version="1.0.0")
+templates = Jinja2Templates(directory="templates")
 
-# 初始化翻译Agent
-agent = TranslationAgent(config.get_all())
+# Initialize translation agent
+# Use default configuration, will be updated per request
+llm_config = LLMConfig()
+agent = TranslationAgent(config.get_all(), llm_config, LLM_REGISTER)
 
-@app.route('/')
-def index():
-    """主页"""
-    return render_template('index.html')
+@app.get("/", response_class=HTMLResponse)
+async def index(request: Request):
+    """Homepage"""
+    return templates.TemplateResponse("index.html", {"request": request})
 
-@app.route('/translate', methods=['POST'])
-def translate():
-    """处理翻译请求"""
+@app.post("/translate")
+async def translate(
+    request: Request,
+    model_type: str = Form(default=config.get('DEFAULT_MODEL', 'openai')),
+    file: UploadFile = File(None),
+    text_input: str = Form(None)
+):
+    """Handle translation requests"""
     try:
-        # 获取模型类型
-        model_type = request.form.get('model_type', config.get('DEFAULT_MODEL', 'openai'))
-        
-        # 获取输入数据
+        # Get input data
         input_data = None
-        if 'file' in request.files and request.files['file'].filename != '':
-            # 处理文件上传
-            file = request.files['file']
+        if file and file.filename != '':
+            # Handle file upload
+            content = await file.read()
             if file.filename.endswith('.json'):
-                input_data = json.load(file)
+                input_data = json.loads(content.decode('utf-8'))
             else:
-                # 处理文本文件
-                content = file.read().decode('utf-8')
-                input_data = {"text": content}
-        elif 'text_input' in request.form and request.form['text_input'].strip():
-            # 处理直接文本输入
-            text_input = request.form['text_input'].strip()
+                # Handle text files
+                input_data = {"text": content.decode('utf-8')}
+        elif text_input and text_input.strip():
+            # Handle direct text input
             try:
-                # 尝试解析为JSON
-                input_data = json.loads(text_input)
+                # Try to parse as JSON
+                input_data = json.loads(text_input.strip())
             except json.JSONDecodeError:
-                # 作为纯文本处理
-                input_data = {"text": text_input}
+                # Handle as plain text
+                input_data = {"text": text_input.strip()}
         else:
-            return jsonify({"error": "请提供输入数据"}), 400
+            return JSONResponse(content={"error": "Please provide input data"}, status_code=400)
         
-        # 验证输入数据
+        # Validate input data
         if not validate_input_data(input_data):
-            return jsonify({"error": "输入数据格式不正确"}), 400
+            return JSONResponse(content={"error": "Input data format is incorrect"}, status_code=400)
         
-        # 执行翻译
-        result = agent.translate(input_data, model_type)
+        # Create LLM configuration based on model type and request
+        llm_type = LLMType(model_type)
+        # Create a new agent instance with proper configuration for this request
+        request_llm_config = LLMConfig.from_args(type('Args', (), config.get_all())(), llm_type)
+        request_agent = TranslationAgent(config.get_all(), request_llm_config, LLM_REGISTER)
         
-        return jsonify({
+        # Execute translation
+        result = request_agent.translate(input_data, model_type)
+        
+        return JSONResponse(content={
             "success": True,
             "result": result,
             "model_type": model_type
         })
         
     except Exception as e:
-        logger.error(f"翻译过程中发生错误: {str(e)}")
-        return jsonify({"error": f"翻译失败: {str(e)}"}), 500
+        logger.error(f"Error occurred during translation: {str(e)}")
+        return JSONResponse(content={"error": f"Translation failed: {str(e)}"}, status_code=500)
 
-@app.route('/health')
-def health_check():
-    """健康检查端点"""
-    return jsonify({"status": "healthy"}), 200
+@app.get("/health")
+async def health_check():
+    """Health check endpoint"""
+    return JSONResponse(content={"status": "healthy"}, status_code=200)
 
-@app.errorhandler(413)
-def too_large(e):
-    """文件过大错误处理"""
-    return jsonify({"error": "文件大小超过限制（最大16MB）"}), 413
+@app.exception_handler(413)
+async def too_large(request: Request, exc: Exception):
+    """File too large error handler"""
+    return JSONResponse(content={"error": "File size exceeds limit (maximum 16MB)"}, status_code=413)
 
 if __name__ == '__main__':
-    # 创建日志目录
+    # Create log directory
     log_dir = os.path.dirname(config.get("LOG_FILE", "logs/web_app.log"))
     if log_dir and not os.path.exists(log_dir):
         os.makedirs(log_dir)
     
-    # 创建templates目录
+    # Create templates directory
     if not os.path.exists('templates'):
         os.makedirs('templates')
     
-    app.run(
+    # Run the application
+    uvicorn.run(
+        "web_app:app",
         host='0.0.0.0',
         port=5000,
-        debug=config.get("DEBUG", False)
+        reload=config.get("DEBUG", False)
     )

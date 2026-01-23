@@ -23,7 +23,7 @@
 - 性能监控和统计
 
 ### 5. Web应用模块 (`web_app.py`)
-- Flask Web界面
+- FastAPI Web界面
 - 文件上传和结果展示
 
 ### 6. 工具模块 (`utils.py`)
@@ -41,8 +41,10 @@ translate_agent/
 ├── utils.py               # 工具函数
 ├── prompt.md              # 系统提示词
 ├── test_json.md           # 测试数据
+├── test_agent.py          # 单元测试
 ├── requirements.txt       # 依赖包
 ├── README.md              # 说明文档
+├── ARCHITECTURE.md        # 架构设计文档
 └── templates/
     └── index.html         # Web界面模板
 ```

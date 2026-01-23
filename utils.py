@@ -4,46 +4,46 @@ from typing import Dict, Any, List
 
 def load_input_data(file_path: str) -> Dict[str, Any]:
     """
-    加载输入数据文件
+    Load input data file
     
     Args:
-        file_path: 文件路径
+        file_path: File path
         
     Returns:
-        解析后的数据字典
+        Parsed data dictionary
     """
     with open(file_path, 'r', encoding='utf-8') as f:
         content = f.read().strip()
         
-    # 尝试解析为JSON
+    # Try to parse as JSON
     try:
         return json.loads(content)
     except json.JSONDecodeError:
-        # 如果不是有效的JSON，将其作为纯文本处理
+        # If not valid JSON, treat as plain text
         return {"text": content}
 
 def save_output_data(data: str, file_path: str) -> None:
     """
-    保存输出数据到文件
+    Save output data to file
     
     Args:
-        data: 要保存的数据
-        file_path: 文件路径
+        data: Data to save
+        file_path: File path
     """
     with open(file_path, 'w', encoding='utf-8') as f:
         f.write(data)
 
 def validate_input_data(data: Dict[str, Any]) -> bool:
     """
-    验证输入数据格式
+    Validate input data format
     
     Args:
-        data: 输入数据
+        data: Input data
         
     Returns:
-        是否有效
+        Whether it is valid
     """
-    # 检查是否为segments格式
+    # Check if it's segments format
     if "segments" in data:
         if not isinstance(data["segments"], list):
             return False
@@ -54,7 +54,7 @@ def validate_input_data(data: Dict[str, Any]) -> bool:
                 return False
         return True
     
-    # 检查是否为纯文本
+    # Check if it's plain text
     if "text" in data:
         return isinstance(data["text"], str)
     
@@ -62,13 +62,13 @@ def validate_input_data(data: Dict[str, Any]) -> bool:
 
 def format_segments_for_display(segments: List[Dict[str, Any]]) -> str:
     """
-    格式化segments用于显示
+    Format segments for display
     
     Args:
-        segments: segments列表
+        segments: Segments list
         
     Returns:
-        格式化后的字符串
+        Formatted string
     """
     formatted = []
     for segment in segments:
@@ -79,40 +79,40 @@ def format_segments_for_display(segments: List[Dict[str, Any]]) -> str:
 
 def clean_translation_output(output: str) -> str:
     """
-    清理翻译输出，移除不必要的部分
+    Clean translation output, removing unnecessary parts
     
     Args:
-        output: 原始输出
+        output: Raw output
         
     Returns:
-        清理后的输出
+        Cleaned output
     """
-    # 移除可能的前缀说明
+    # Remove possible prefix explanations
     lines = output.split('\n')
     cleaned_lines = []
     
     for line in lines:
-        # 跳过空行和说明性文字
-        if (line.strip() and 
-            not line.startswith("翻译结果") and 
-            not line.startswith("以下是") and
-            not line.startswith("根据") and
-            not line.startswith("注意")):
+        # Skip empty lines and explanatory text
+        if (line.strip() and
+            not line.startswith("Translation result") and
+            not line.startswith("The following is") and
+            not line.startswith("According to") and
+            not line.startswith("Note")):
             cleaned_lines.append(line)
     
     return '\n'.join(cleaned_lines)
 
 def extract_speaker_content(text: str) -> List[Dict[str, str]]:
     """
-    从文本中提取说话人内容
+    Extract speaker content from text
     
     Args:
-        text: 包含说话人标签的文本
+        text: Text containing speaker tags
         
     Returns:
-        提取的说话人内容列表
+        Extracted speaker content list
     """
-    # 匹配[SPEAKERn]格式的说话人标签
+    # Match speaker tags in [SPEAKERn] format
     pattern = r'\[(SPEAKER\d+)\]\s*(.*?)(?=\n\[(SPEAKER\d+)\]|$)'
     matches = re.findall(pattern, text, re.DOTALL)
     
@@ -124,7 +124,7 @@ def extract_speaker_content(text: str) -> List[Dict[str, str]]:
             if content:
                 results.append({"speaker": speaker, "content": content})
     else:
-        # 如果没有匹配到说话人标签，将整个文本作为一个条目
+        # If no speaker tags are matched, treat the entire text as one entry
         results.append({"speaker": "SPEAKER0", "content": text.strip()})
     
     return results

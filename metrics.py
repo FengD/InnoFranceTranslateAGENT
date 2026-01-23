@@ -6,7 +6,7 @@ from logger import get_logger
 logger = get_logger(__name__)
 
 class MetricsCollector:
-    """指标收集器"""
+    """Metrics collector"""
     
     _instance = None
     _initialized = False
@@ -18,7 +18,7 @@ class MetricsCollector:
     
     def __init__(self):
         if not self._initialized:
-            # 初始化指标
+            # Initialize metrics
             self.translation_requests_total = Counter(
                 'translation_requests_total',
                 'Total number of translation requests',
@@ -43,7 +43,7 @@ class MetricsCollector:
                 ['model_type', 'error_type']
             )
             
-            # 启动Prometheus HTTP服务器
+            # Start Prometheus HTTP server
             try:
                 start_http_server(8000)
                 logger.info("Prometheus metrics server started on port 8000")
@@ -54,11 +54,11 @@ class MetricsCollector:
     
     def record_translation_success(self, model_type: str, duration: float) -> None:
         """
-        记录翻译成功指标
+        Record translation success metrics
         
         Args:
-            model_type: 模型类型
-            duration: 翻译耗时（秒）
+            model_type: Model type
+            duration: Translation duration (seconds)
         """
         self.translation_requests_total.labels(model_type=model_type, status='success').inc()
         self.translation_duration_seconds.labels(model_type=model_type).observe(duration)
@@ -66,11 +66,11 @@ class MetricsCollector:
     
     def record_translation_failure(self, model_type: str, duration: float) -> None:
         """
-        记录翻译失败指标
+        Record translation failure metrics
         
         Args:
-            model_type: 模型类型
-            duration: 翻译耗时（秒）
+            model_type: Model type
+            duration: Translation duration (seconds)
         """
         self.translation_requests_total.labels(model_type=model_type, status='failure').inc()
         self.translation_duration_seconds.labels(model_type=model_type).observe(duration)
@@ -78,34 +78,34 @@ class MetricsCollector:
     
     def record_active_translation_start(self, model_type: str) -> None:
         """
-        记录开始活跃翻译
+        Record start of active translation
         
         Args:
-            model_type: 模型类型
+            model_type: Model type
         """
         self.active_translations.labels(model_type=model_type).inc()
         logger.debug(f"Active translation started for {model_type}")
     
     def record_active_translation_end(self, model_type: str) -> None:
         """
-        记录结束活跃翻译
+        Record end of active translation
         
         Args:
-            model_type: 模型类型
+            model_type: Model type
         """
         self.active_translations.labels(model_type=model_type).dec()
         logger.debug(f"Active translation ended for {model_type}")
     
     def record_api_error(self, model_type: str, error_type: str) -> None:
         """
-        记录API错误
+        Record API error
         
         Args:
-            model_type: 模型类型
-            error_type: 错误类型
+            model_type: Model type
+            error_type: Error type
         """
         self.api_errors_total.labels(model_type=model_type, error_type=error_type).inc()
         logger.error(f"API error recorded for {model_type}: {error_type}")
 
-# 全局指标收集器实例
+# Global metrics collector instance
 metrics_collector = MetricsCollector()
