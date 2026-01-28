@@ -3,6 +3,7 @@ import logging
 import os
 import requests
 import time
+from pathlib import Path
 from typing import Dict, Any, Optional
 from logger import get_logger
 from metrics import MetricsCollector
@@ -31,7 +32,8 @@ class TranslationAgent:
     def _load_prompt(self) -> str:
         """Load system prompt"""
         try:
-            with open('prompt.md', 'r', encoding='utf-8') as f:
+            prompt_path = Path(__file__).resolve().parent / "prompt.md"
+            with open(prompt_path, "r", encoding="utf-8") as f:
                 return f.read()
         except FileNotFoundError:
             logger.error("prompt.md file not found")

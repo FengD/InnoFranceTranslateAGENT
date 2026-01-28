@@ -1,0 +1,131 @@
+{
+  "language": "fr",
+  "segments": [
+    {
+      "start": 0.03,
+      "end": 15.93,
+      "text": "Ça y est maintenant on a trouvé le secret de l'intelligence! D'ici 10 ans on aura des machines aussi intelligentes que les humains! Yann Lequin, ou de l'autre côté de l'Atlantique, c'est plutôt Yann Lecun. Découvrir le mystère de l'intelligence et construire des machines intelligentes, je pense que c'est la seule manière de valider si des idées abstraites fonctionnent.",
+      "speaker": "SPEAKER1"
+    },
+    {
+      "start": 16.06,
+      "end": 23.72,
+      "text": "En fait, le LLM, c'est plié. Maintenant, c'est parti dans une équipe produit. C'est plus de la recherche. Un peu, oui. J'étais pas prêt à cette... Elon M.",
+      "speaker": "SPEAKER2"
+    },
+    {
+      "start": 20.33,
+      "end": 27.5,
+      "text": "Un peu, oui. Oui, il avait été mercredi, mais ça n'a pas marché.",
+      "speaker": "SPEAKER1"
+    },
+    {
+      "start": 27.54,
+      "end": 29.9,
+      "text": "Ça me fait penser à Apple et son casque là.",
+      "speaker": "SPEAKER2"
+    },
+    {
+      "start": 30.32,
+      "end": 35.55,
+      "text": "Apple essaie de rattraper leur retard et ils sortent",
+      "speaker": "SPEAKER0"
+    },
+    {
+      "start": 32.04,
+      "end": 62.59,
+      "text": "Apple essaie de... et il sorte un truc à bord qui est moins bon et qui est 7 fois plus cher. Donc non, je ne suis pas impressionné. Bientôt, ça sera dans les lunettes intelligentes et on aura les sous-titres qui s'affichent si on parle à quelqu'un dans une langue étrangère. Dès qu'une prédiction est violée, on est obligé d'y prêter attention parce que ça veut dire que notre modèle du monde était faux. C'est des réseaux convolutifs, c'est un peu mon invention qui date de 35 ans et qui détectent les objets qu'on a besoin de détecter. Je ne crois pas à l'application du calcul quantique à l'IA et en fait, je suis très sceptique sur le calcul quantique.",
+      "speaker": "SPEAKER1"
+    },
+    {
+      "start": 56.88,
+      "end": 56.9,
+      "text": "Sous-titrage Société Radio-Canada",
+      "speaker": "SPEAKER0"
+    },
+    {
+      "start": 56.9,
+      "end": 70.97,
+      "text": "Je ne crois pas. Tu pourrais envisager qu'un LLM comme ça invente une langue et tu lui proposes une langue inventée peut-être par un autre LLM et qu'il le comprenne.",
+      "speaker": "SPEAKER2"
+    },
+    {
+      "start": 70.97,
+      "end": 81.98,
+      "text": "Oui, absolument. Donc simplement en observant le monde pendant quelques mois ou même quelques centaines d'heures, on a plus d'informations, en fait, plus de données que la totalité du texte disponible sur Internet. Il y a des choses",
+      "speaker": "SPEAKER1"
+    },
+    {
+      "start": 81.98,
+      "end": 82.75,
+      "text": "qui te font peur",
+      "speaker": "SPEAKER2"
+    },
+    {
+      "start": 82.75,
+      "end": 82.97,
+      "text": "lire.",
+      "speaker": "SPEAKER1"
+    },
+    {
+      "start": 82.97,
+      "end": 83.11,
+      "text": "Sous-titrage Société Radio-Canada",
+      "speaker": "SPEAKER2"
+    },
+    {
+      "start": 83.11,
+      "end": 83.16,
+      "text": "Merci.",
+      "speaker": "SPEAKER1"
+    },
+    {
+      "start": 88.73,
+      "end": 134.47,
+      "text": "Ben nous y voilà, cet épisode tant attendu, moi je suis un... c'est marrant parce que tu n'as peut-être pas des groupies très souvent, mais je suis presque un groupie d'Yann Lequin, tu vois, autant j'ai des gens qui ont l'habitude d'avoir des groupies ici, tu vois, des Bob Sinclar, des artistes, des DJs, voilà, mais j'ai écouté beaucoup de tes épisodes, enfin les trois épisodes je crois, chez Lex Friedman. Chez Lex Friedman? Le dernier était dense, pointu. En plus, je ne connais pas Lex Friedman personnellement, mais il est très sharp. Donc, vous allez assez loin. Et moi, ce que je te propose aujourd'hui, Yann, c'est d'aller... Au moins de reposer les bases. Si on peut aller loin, je suis très content. Déjà aussi de reposer les bases de...",
+      "speaker": "SPEAKER2"
+    },
+    {
+      "start": 130.86,
+      "end": 130.9,
+      "text": "Merci.",
+      "speaker": "SPEAKER0"
+    },
+    {
+      "start": 130.9,
+      "end": 131.27,
+      "text": "D'accord.",
+      "speaker": "SPEAKER1"
+    },
+    {
+      "start": 134.76,
+      "end": 189.22,
+      "text": "de l'IA, des LLM, aussi toi? ce que tu penses qui m'intéresse, c'est que j'ai eu sur Génération du Turself et fait des épisodes très sympas autour de l'IA, mais il y en a qui sont plus flamboyants ou qui vont faire fantasmer aussi. J'ai reçu des gens comme Laurent Alexandre, que tu connais peut-être de près, de loin, avec qui je m'éclate et que j'aime beaucoup d'ailleurs, avec qui on s'écharpe aussi dans chaque épisode. Mais voilà, et j'aimerais comprendre un peu pour toi de l'intérieur de chez Fer notamment où est-ce que vous en êtes qu'est-ce que tu vois qu'est-ce que tu comprends qu'est-ce que tu vois à travers tes Ray-Ban méta qui me filment en ce moment non qui ne me filment pas justement et puis j'aimerais aussi comprendre et peut-être pour pour",
+      "speaker": "SPEAKER2"
+    },
+    {
+      "start": 177.66,
+      "end": 178.11,
+      "text": "D'accord.",
+      "speaker": "SPEAKER1"
+    },
+    {
+      "start": 189.72,
+      "end": 231.29,
+      "text": "les plus jeunes qui nous écoutent, comment on peut, en partant de France, finir un job qui est quand même l'un des plus hauts de l'IA dans le monde. Tu vois, il y a Sam Altman et Yann Lequin. Donc, peut-être se dire que c'est possible et comprendre comment on y arrive. En tout cas, comment tu y es arrivé, cette trajectoire des années 80. Tu voyais déjà, semble-t-il, pas mal de choses. Tu commençais à tripatouiller pas mal de choses. Voilà, cette fois comme programme. Ça va très bien. Je te propose avant tout ça, si tu veux bien, de te présenter, Yann. D'accord.",
+      "speaker": "SPEAKER2"
+    },
+    {
+      "start": 231.29,
+      "end": 262.97,
+      "text": "euh Donc, Yann Lequin, ou de l'autre côté de l'Atlantique, c'est plutôt Yann Lecun. Et puis, ça ne s'écrit pas pareil parce que mon nom s'écrit en deux mots, mais aux Etats-Unis, les gens ne comprennent pas que le, ce n'est pas mon middle name. Donc, j'ai accolé les deux. Donc, je suis Chief AI Scientist, donc scientifique en chef à Meta. J'y suis depuis un peu plus de dix ans.",
+      "speaker": "SPEAKER1"
+    },
+    {
+      "start": 250.02,
+      "end": 250.41,
+      "text": "– Hum.",
+      "speaker": "SPEAKER0"
+    }
+  ]
+}
