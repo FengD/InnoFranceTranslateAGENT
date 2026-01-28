@@ -29,6 +29,12 @@ def _parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
         help="LLM provider to use",
     )
     parser.add_argument("--model-name", "-m", help="Specific model name to use (optional)")
+    parser.add_argument(
+        "--prompt-type",
+        default="translate",
+        choices=["translate", "summary", "check"],
+        help="Prompt type to use (translate, summary, check)",
+    )
     add_llm_arguments(parser)
     return parser.parse_args(argv)
 
@@ -45,7 +51,12 @@ def _build_agent(args: argparse.Namespace) -> TranslationAgent:
     llm_config = LLMConfig.from_args(args, llm_type)
     if args.model_name:
         llm_config.model = args.model_name
-    return TranslationAgent(config.get_all(), llm_config, LLM_REGISTER)
+    return TranslationAgent(
+        config.get_all(),
+        llm_config,
+        LLM_REGISTER,
+        prompt_type=args.prompt_type,
+    )
 
 
 def main(argv: Optional[list[str]] = None) -> int:

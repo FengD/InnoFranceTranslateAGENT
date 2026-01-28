@@ -82,6 +82,7 @@ CLI options:
 - `--output`, `-o`: Output file path (optional, defaults to stdout)
 - `--provider`, `-p`: LLM provider (openai, ollama, qwen, glm, deepseek, sglang, vllm)
 - `--model-name`, `-m`: Model override (optional)
+- `--prompt-type`: Prompt type (`translate`, `summary`, `check`)
 
 ### MCP Server (stdio)
 
@@ -114,10 +115,10 @@ Use your MCP client to connect to the server host and port. The exact SSE endpoi
 
 ### MCP Tools
 
-- `translate_text(text, provider="openai", model_name=None)`
-- `translate_json(input_json, provider="openai", model_name=None)`
-- `translate_from_file(input_path, provider="openai", model_name=None)`
-- `translate_and_save(input_path, output_path, provider="openai", model_name=None)`
+- `translate_text(text, provider="openai", model_name=None, prompt_type="translate")`
+- `translate_json(input_json, provider="openai", model_name=None, prompt_type="translate")`
+- `translate_from_file(input_path, provider="openai", model_name=None, prompt_type="translate")`
+- `translate_and_save(input_path, output_path, provider="openai", model_name=None, prompt_type="translate")`
 
 ### Input Format
 
@@ -187,7 +188,9 @@ InnoFranceTranslateAGENT/
 ├── core/
 │   ├── translator_agent.py
 │   ├── utils.py
-│   ├── prompt.md
+│   ├── translate.md
+│   ├── summary.md
+│   ├── check.md
 │   └── backend/
 │       ├── configs/
 │       └── provider/

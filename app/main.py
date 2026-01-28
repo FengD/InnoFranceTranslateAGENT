@@ -31,12 +31,17 @@ app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
 
-def _build_agent(provider: str, model_name: Optional[str]) -> TranslationAgent:
+def _build_agent(provider: str, model_name: Optional[str], prompt_type: str) -> TranslationAgent:
     llm_type = LLMType(provider)
     llm_config = LLMConfig.from_args(type("Args", (), config.get_all())(), llm_type)
     if model_name:
         llm_config.model = model_name
-    return TranslationAgent(config.get_all(), llm_config, LLM_REGISTER)
+    return TranslationAgent(
+        config.get_all(),
+        llm_config,
+        LLM_REGISTER,
+        prompt_type=prompt_type,
+    )
 
 
 async def _parse_input(file: UploadFile | None, text_input: Optional[str]) -> dict:
@@ -106,6 +111,7 @@ async def translate(
     request: Request,
     provider: str = Form(default=config.get("DEFAULT_MODEL", "openai")),
     model_name: str = Form(default=None),
+    prompt_type: str = Form(default="translate"),
     file: UploadFile = File(None),
     text_input: str = Form(None),
 ):
@@ -114,7 +120,7 @@ async def translate(
         if not validate_input_data(input_data):
             raise HTTPException(status_code=400, detail="Input data format is incorrect")
 
-        request_agent = _build_agent(provider, model_name)
+        request_agent = _build_agent(provider, model_name, prompt_type)
         result = request_agent.translate(input_data, provider)
 
         return JSONResponse(
@@ -123,6 +129,7 @@ async def translate(
                 "result": result,
                 "provider": provider,
                 "model_name": model_name or request_agent.llm_config.model,
+                "prompt_type": prompt_type,
             }
         )
     except ValueError as exc:

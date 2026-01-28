@@ -14,7 +14,14 @@ from core.backend.provider.llm_provider import LLMProvider
 logger = get_logger(__name__)
 
 class TranslationAgent:
-    def __init__(self, config: Dict[str, Any], llm_config: LLMConfig, llm_register: LLMProvider):
+    def __init__(
+        self,
+        config: Dict[str, Any],
+        llm_config: LLMConfig,
+        llm_register: LLMProvider,
+        prompt_type: str = "translate",
+        prompt_path: Optional[str] = None,
+    ):
         """
         Initialize Translation Agent
         
@@ -27,16 +34,28 @@ class TranslationAgent:
         self.llm_config = llm_config
         self.llm_register = llm_register
         self.metrics = MetricsCollector()
+        self.prompt_type = prompt_type
+        self.prompt_path = prompt_path
         self.prompt_template = self._load_prompt()
         
+    def _resolve_prompt_path(self) -> Path:
+        base_dir = Path(__file__).resolve().parent
+        if self.prompt_path:
+            path = Path(self.prompt_path)
+            if not path.is_absolute():
+                path = base_dir / path
+            return path
+        prompt_name = f"{self.prompt_type}.md" if self.prompt_type else "translate.md"
+        return base_dir / prompt_name
+
     def _load_prompt(self) -> str:
         """Load system prompt"""
         try:
-            prompt_path = Path(__file__).resolve().parent / "prompt.md"
+            prompt_path = self._resolve_prompt_path()
             with open(prompt_path, "r", encoding="utf-8") as f:
                 return f.read()
         except FileNotFoundError:
-            logger.error("prompt.md file not found")
+            logger.error("prompt file not found")
             return ""
     
     def translate(self, input_data: Dict[str, Any], model_type: str = "openai") -> str:
@@ -112,7 +131,13 @@ class TranslationAgent:
         Returns:
             Complete prompt
         """
-        return f"Please translate the following content:\n{input_text}"
+        prefix_map = {
+            "translate": "Please translate the following content:\n",
+            "summary": "Please summarize the following content:\n",
+            "check": "Please check and format the following content:\n",
+        }
+        prefix = prefix_map.get(self.prompt_type, "Please process the following content:\n")
+        return f"{prefix}{input_text}"
 
     def _estimate_tokens(self, text: str) -> int:
         """Estimate token count using a simple character ratio heuristic."""

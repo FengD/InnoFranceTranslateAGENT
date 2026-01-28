@@ -22,12 +22,17 @@ logger = get_logger("translation_mcp")
 mcp = FastMCP("Translation Agent", json_response=True)
 
 
-def _build_agent(provider: str, model_name: Optional[str]) -> TranslationAgent:
+def _build_agent(provider: str, model_name: Optional[str], prompt_type: str) -> TranslationAgent:
     llm_type = LLMType(provider)
     llm_config = LLMConfig.from_args(type("Args", (), config.get_all())(), llm_type)
     if model_name:
         llm_config.model = model_name
-    return TranslationAgent(config.get_all(), llm_config, LLM_REGISTER)
+    return TranslationAgent(
+        config.get_all(),
+        llm_config,
+        LLM_REGISTER,
+        prompt_type=prompt_type,
+    )
 
 
 def _parse_json_payload(payload: str) -> dict:
@@ -42,6 +47,7 @@ def translate_text(
     text: str,
     provider: str = "openai",
     model_name: Optional[str] = None,
+    prompt_type: str = "translate",
 ) -> dict:
     """
     Translate plain text.
@@ -55,7 +61,7 @@ def translate_text(
         Dictionary with 'success', 'result', and optional 'error' keys
     """
     try:
-        agent = _build_agent(provider, model_name)
+        agent = _build_agent(provider, model_name, prompt_type)
         result = agent.translate({"text": text}, provider)
         return {"success": True, "result": result}
     except Exception as exc:
@@ -68,6 +74,7 @@ def translate_json(
     input_json: str,
     provider: str = "openai",
     model_name: Optional[str] = None,
+    prompt_type: str = "translate",
 ) -> dict:
     """
     Translate JSON input with segments or text.
@@ -82,7 +89,7 @@ def translate_json(
     """
     try:
         input_data = _parse_json_payload(input_json)
-        agent = _build_agent(provider, model_name)
+        agent = _build_agent(provider, model_name, prompt_type)
         result = agent.translate(input_data, provider)
         return {"success": True, "result": result}
     except Exception as exc:
@@ -95,6 +102,7 @@ def translate_from_file(
     input_path: str,
     provider: str = "openai",
     model_name: Optional[str] = None,
+    prompt_type: str = "translate",
 ) -> dict:
     """
     Translate data from a JSON or text file.
@@ -111,7 +119,7 @@ def translate_from_file(
         data = load_input_data(input_path)
         if not validate_input_data(data):
             raise ValueError("Input data format is incorrect")
-        agent = _build_agent(provider, model_name)
+        agent = _build_agent(provider, model_name, prompt_type)
         result = agent.translate(data, provider)
         return {"success": True, "result": result}
     except Exception as exc:
@@ -125,6 +133,7 @@ def translate_and_save(
     output_path: str,
     provider: str = "openai",
     model_name: Optional[str] = None,
+    prompt_type: str = "translate",
 ) -> dict:
     """
     Translate an input file and save the result.
@@ -142,7 +151,7 @@ def translate_and_save(
         data = load_input_data(input_path)
         if not validate_input_data(data):
             raise ValueError("Input data format is incorrect")
-        agent = _build_agent(provider, model_name)
+        agent = _build_agent(provider, model_name, prompt_type)
         result = agent.translate(data, provider)
         output_file = Path(output_path)
         output_file.parent.mkdir(parents=True, exist_ok=True)

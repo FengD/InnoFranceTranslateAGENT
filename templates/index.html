@@ -16,15 +16,22 @@
       <section class="card">
         <div class="form-group">
           <label class="label" for="provider">Select Provider</label>
-          <select id="provider" class="select">
-            <option value="openai">OpenAI (GPT)</option>
-            <option value="ollama">Ollama (本地模型)</option>
-            <option value="qwen">通义千问 (Qwen)</option>
-            <option value="glm">智谱清言 (GLM)</option>
-            <option value="deepseek">DeepSeek</option>
-            <option value="sglang">SGLang</option>
-            <option value="vllm">VLLM</option>
-          </select>
+          <div class="row">
+            <select id="provider" class="select">
+              <option value="openai">OpenAI (GPT)</option>
+              <option value="ollama">Ollama (本地模型)</option>
+              <option value="qwen">通义千问 (Qwen)</option>
+              <option value="glm">智谱清言 (GLM)</option>
+              <option value="deepseek">DeepSeek</option>
+              <option value="sglang">SGLang</option>
+              <option value="vllm">VLLM</option>
+            </select>
+            <select id="prompt_type" class="select">
+              <option value="translate">Translate</option>
+              <option value="summary">Summary</option>
+              <option value="check">Check</option>
+            </select>
+          </div>
         </div>
         
         <div class="form-group">
@@ -96,6 +103,7 @@
         const provider = document.getElementById('provider').value;
         const modelName = document.getElementById('model_name').value;
         const fileInput = document.getElementById('file');
+        const promptType = document.getElementById('prompt_type').value;
         const textInput = document.getElementById('text_input').value;
         
         // Create FormData object
@@ -104,6 +112,7 @@
         if (modelName.trim() !== '') {
             formData.append('model_name', modelName);
         }
+        formData.append('prompt_type', promptType);
         
         if (fileInput.files.length > 0) {
           formData.append('file', fileInput.files[0]);
