@@ -2,6 +2,7 @@ from prometheus_client import Counter, Histogram, Gauge, start_http_server
 import time
 from typing import Dict, Any
 from logger import get_logger
+from config import config
 
 logger = get_logger(__name__)
 
@@ -43,10 +44,11 @@ class MetricsCollector:
                 ['model_type', 'error_type']
             )
             
-            # Start Prometheus HTTP server
+            # Start Prometheus HTTP server using configured port
+            prometheus_port = config.get("PROMETHEUS_PORT", 8001)
             try:
-                start_http_server(8000)
-                logger.info("Prometheus metrics server started on port 8000")
+                start_http_server(prometheus_port)
+                logger.info(f"Prometheus metrics server started on port {prometheus_port}")
             except Exception as e:
                 logger.error(f"Failed to start Prometheus metrics server: {e}")
             

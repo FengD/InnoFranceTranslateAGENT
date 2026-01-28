@@ -6,9 +6,9 @@ import time
 from typing import Dict, Any, Optional
 from logger import get_logger
 from metrics import MetricsCollector
-from backend.configs.llm_config import LLMConfig, LLMType
-from backend.provider.base_llm import BaseLLM
-from backend.provider.llm_provider import LLMProvider
+from core.backend.configs.llm_config import LLMConfig, LLMType
+from core.backend.provider.base_llm import BaseLLM
+from core.backend.provider.llm_provider import LLMProvider
 
 logger = get_logger(__name__)
 

@@ -10,9 +10,9 @@
 from typing import Union, Optional
 import requests
 import os
-from backend.configs.llm_config import LLMType, LLMConfig
-from backend.provider.base_llm import BaseLLM
-from backend.provider.llm_provider import register_provider
+from ..configs.llm_config import LLMType, LLMConfig
+from .base_llm import BaseLLM
+from .llm_provider import register_provider
 
 
 @register_provider(LLMType.OLLAMA)

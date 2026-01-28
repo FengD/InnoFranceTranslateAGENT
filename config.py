@@ -16,7 +16,7 @@ class Config:
         config["LOG_FILE"] = os.getenv("LOG_FILE", "logs/translation_agent.log")
         
         # Prometheus configuration
-        config["PROMETHEUS_PORT"] = int(os.getenv("PROMETHEUS_PORT", "8000"))
+        config["PROMETHEUS_PORT"] = int(os.getenv("PROMETHEUS_PORT", "8001"))
         config["ENABLE_METRICS"] = os.getenv("ENABLE_METRICS", "true").lower() == "true"
 
         # Input chunking configuration (approximate tokens)

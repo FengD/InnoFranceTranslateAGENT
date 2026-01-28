@@ -11,9 +11,9 @@
 from openai import OpenAI
 import os
 
-from backend.provider.base_llm import BaseLLM
-from backend.configs.llm_config import LLMConfig, LLMType
-from backend.provider.llm_provider import register_provider
+from .base_llm import BaseLLM
+from ..configs.llm_config import LLMConfig, LLMType
+from .llm_provider import register_provider
 from typing import Union, Optional
 
 

@@ -1,12 +1,12 @@
 import argparse
 import json
 import os
-from translator_agent import TranslationAgent
+from core.translator_agent import TranslationAgent
 from config import config
 from logger import setup_logging, get_logger
-from utils import load_input_data, save_output_data
-from backend.configs.llm_config import LLMConfig, LLMType
-from backend.provider.llm_provider import add_llm_arguments, LLM_REGISTER
+from core.utils import load_input_data, save_output_data
+from core.backend.configs.llm_config import LLMConfig, LLMType
+from core.backend.provider.llm_provider import add_llm_arguments, LLM_REGISTER
 
 def main():
     # Setup logging

@@ -8,8 +8,8 @@
 @Brief    : registry and getter of the llm provider
 """
 
-from backend.configs.llm_config import LLMConfig, LLMType
-from backend.provider.base_llm import BaseLLM
+from ..configs.llm_config import LLMConfig, LLMType
+from .base_llm import BaseLLM
 import argparse
 
 class LLMProvider:

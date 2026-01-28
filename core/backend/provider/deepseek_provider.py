@@ -4,26 +4,26 @@
 """
 @Time     : 2024/10/28
 @Author   : FengD
-@File     : qwen_provider.py
-@brief    : Qwen LLM provider implementation
+@File     : deepseek_provider.py
+@brief    : DeepSeek LLM provider implementation
 """
 
 from openai import OpenAI
 import os
 
-from backend.provider.base_llm import BaseLLM
-from backend.configs.llm_config import LLMConfig, LLMType
-from backend.provider.llm_provider import register_provider
+from .base_llm import BaseLLM
+from ..configs.llm_config import LLMConfig, LLMType
+from .llm_provider import register_provider
 from typing import Union, Optional
 
 
-@register_provider(LLMType.QWEN)
-class QwenProvider(BaseLLM):
-    """Qwen LLM provider implementation"""
+@register_provider(LLMType.DEEPSEEK)
+class DeepSeekProvider(BaseLLM):
+    """DeepSeek LLM provider implementation"""
     
     def __init__(self, config: LLMConfig):
         """
-        Initialize Qwen provider
+        Initialize DeepSeek provider
         
         Args:
             config: LLM configuration
@@ -31,17 +31,17 @@ class QwenProvider(BaseLLM):
         super().__init__(config)
         # If no API key in config, get from environment variables
         if not self._config.api_key:
-            self._config.api_key = os.getenv("DASHSCOPE_API_KEY", "")
+            self._config.api_key = os.getenv("DEEPSEEK_API_KEY", "")
         
-        # Initialize Qwen client (OpenAI-compatible)
+        # Initialize DeepSeek client (OpenAI-compatible)
         self._client = OpenAI(
             api_key=self._config.api_key,
-            base_url=self._config.base_url or "https://dashscope.aliyuncs.com/compatible-mode/v1"
+            base_url=self._config.base_url or "https://api.deepseek.com"
         )
     
     def call_llm(self, prompt: str, images: Optional[Union[str, list[str]]] = None):
         """
-        Call Qwen API
+        Call DeepSeek API
         
         Args:
             prompt: Prompt
@@ -53,11 +53,12 @@ class QwenProvider(BaseLLM):
         messages, response_format = self._user_msg(prompt, images)
 
         request_kwargs = {
-            "model": self._config.model or "qwen-turbo",
+            "model": self._config.model or "deepseek-chat",
             "temperature": self._config.temperature,
             "top_p": self._config.top_p,
             "messages": messages,
         }
+        # DeepSeek currently does not support json_schema response_format
         if response_format:
             request_kwargs["response_format"] = response_format
 
@@ -90,6 +91,7 @@ class QwenProvider(BaseLLM):
             })
         else:
             messages.append({"role": "user", "content": msg})
-
+        
+        # DeepSeek doesn't support json_schema response_format; keep optional override
         response_format = self._config.response_format
         return messages, response_format

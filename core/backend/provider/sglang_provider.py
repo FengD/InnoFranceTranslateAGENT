@@ -4,25 +4,26 @@
 """
 @Time     : 2024/10/28
 @Author   : FengD
-@File     : openai_provider.py
-@brief    : OpenAI LLM provider implementation
+@File     : sglang_provider.py
+@brief    : SGLang LLM provider implementation
 """
 
 from openai import OpenAI
 import os
 
-from backend.provider.base_llm import BaseLLM
-from backend.configs.llm_config import LLMConfig, LLMType
-from backend.provider.llm_provider import register_provider
+from .base_llm import BaseLLM
+from ..configs.llm_config import LLMConfig, LLMType
+from .llm_provider import register_provider
 from typing import Union, Optional
 
-@register_provider(LLMType.OPENAI)
-class OpenAIProvider(BaseLLM):
-    """OpenAI LLM provider implementation"""
+
+@register_provider(LLMType.SGLANG)
+class SGLangProvider(BaseLLM):
+    """SGLang LLM provider implementation"""
     
     def __init__(self, config: LLMConfig):
         """
-        Initialize OpenAI provider
+        Initialize SGLang provider
         
         Args:
             config: LLM configuration
@@ -30,12 +31,12 @@ class OpenAIProvider(BaseLLM):
         super().__init__(config)
         # If no API key in config, get from environment variables
         if not self._config.api_key:
-            self._config.api_key = os.getenv("OPENAI_API_KEY", "")
+            self._config.api_key = os.getenv("SGLANG_API_KEY", "")
         
-        # Initialize OpenAI client
+        # Initialize OpenAI client (SGLang uses OpenAI-compatible API)
         # Handle proxies parameter issue with newer versions of openai library
         client_kwargs = {
-            "api_key": self._config.api_key or "EMPTY",  # SGLang/VLLM doesn't require API key
+            "api_key": self._config.api_key or "EMPTY",  # SGLang doesn't require API key
         }
         if self._config.base_url:
             client_kwargs["base_url"] = self._config.base_url
@@ -43,8 +44,11 @@ class OpenAIProvider(BaseLLM):
         # Debug: Print the config and kwargs
         import logging
         logger = logging.getLogger(__name__)
-        logger.debug(f"OpenAIProvider config: {self._config}")
-        logger.debug(f"OpenAI client kwargs: {client_kwargs}")
+        logger.debug(f"SGLangProvider config: {self._config}")
+        logger.debug(f"SGLang client kwargs: {client_kwargs}")
+        
+        # Additional debug info
+        logger.debug(f"Base URL being used: {client_kwargs.get('base_url', 'Not set')}")
             
         # Clear proxy environment variables to avoid issues with OpenAI client
         original_proxy = os.environ.get('http_proxy')
@@ -62,7 +66,7 @@ class OpenAIProvider(BaseLLM):
             
         except TypeError as e:
             # Log the error for debugging
-            logger.error(f"TypeError when initializing OpenAI client: {e}")
+            logger.error(f"TypeError when initializing SGLang client: {e}")
             # If there's still an issue with parameters, try with minimal args
             if "proxies" in str(e):
                 # Retry with only essential parameters
@@ -81,7 +85,7 @@ class OpenAIProvider(BaseLLM):
     
     def call_llm(self, prompt: str, images: Optional[Union[str, list[str]]] = None):
         """
-        Call OpenAI API
+        Call SGLang API
         
         Args:
             prompt: Prompt
@@ -91,18 +95,29 @@ class OpenAIProvider(BaseLLM):
             Result returned by API
         """
         messages, response_format = self._user_msg(prompt, images)
+        
+        # Debug: Print the request details
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.debug(f"Sending request to SGLang API with model: {self._config.model or 'default'}")
+        logger.debug(f"Messages: {messages}")
+        
+        try:
+            request_kwargs = {
+                "model": self._config.model or "default",
+                "temperature": self._config.temperature,
+                "top_p": self._config.top_p,
+                "messages": messages,
+            }
+            if response_format:
+                request_kwargs["response_format"] = response_format
 
-        request_kwargs = {
-            "model": self._config.model or "gpt-3.5-turbo",
-            "temperature": self._config.temperature,
-            "top_p": self._config.top_p,
-            "messages": messages,
-        }
-        if response_format:
-            request_kwargs["response_format"] = response_format
-
-        completion = self._client.chat.completions.create(**request_kwargs)
-        return completion.choices[0].message.content
+            completion = self._client.chat.completions.create(**request_kwargs)
+            logger.debug(f"Received response from SGLang API: {completion}")
+            return completion.choices[0].message.content
+        except Exception as e:
+            logger.error(f"Error calling SGLang API: {str(e)}")
+            raise
         
         
     def _user_msg(self, msg: str, images: Optional[Union[str, list[str]]] = None):

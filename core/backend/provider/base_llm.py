@@ -10,7 +10,7 @@
 
 from abc import ABC, abstractmethod
 from typing import Optional, Union
-from backend.configs.llm_config import LLMConfig
+from ..configs.llm_config import LLMConfig
 
 class BaseLLM(ABC):
     """Base class for LLM providers"""

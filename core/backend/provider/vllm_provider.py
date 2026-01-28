@@ -4,26 +4,26 @@
 """
 @Time     : 2024/10/28
 @Author   : FengD
-@File     : sglang_provider.py
-@brief    : SGLang LLM provider implementation
+@File     : vllm_provider.py
+@brief    : VLLM LLM provider implementation
 """
 
 from openai import OpenAI
 import os
 
-from backend.provider.base_llm import BaseLLM
-from backend.configs.llm_config import LLMConfig, LLMType
-from backend.provider.llm_provider import register_provider
+from .base_llm import BaseLLM
+from ..configs.llm_config import LLMConfig, LLMType
+from .llm_provider import register_provider
 from typing import Union, Optional
 
 
-@register_provider(LLMType.SGLANG)
-class SGLangProvider(BaseLLM):
-    """SGLang LLM provider implementation"""
+@register_provider(LLMType.VLLM)
+class VLLMProvider(BaseLLM):
+    """VLLM LLM provider implementation"""
     
     def __init__(self, config: LLMConfig):
         """
-        Initialize SGLang provider
+        Initialize VLLM provider
         
         Args:
             config: LLM configuration
@@ -31,12 +31,12 @@ class SGLangProvider(BaseLLM):
         super().__init__(config)
         # If no API key in config, get from environment variables
         if not self._config.api_key:
-            self._config.api_key = os.getenv("SGLANG_API_KEY", "")
+            self._config.api_key = os.getenv("VLLM_API_KEY", "")
         
-        # Initialize OpenAI client (SGLang uses OpenAI-compatible API)
+        # Initialize OpenAI client (VLLM uses OpenAI-compatible API)
         # Handle proxies parameter issue with newer versions of openai library
         client_kwargs = {
-            "api_key": self._config.api_key or "EMPTY",  # SGLang doesn't require API key
+            "api_key": self._config.api_key or "EMPTY",  # VLLM doesn't require API key
         }
         if self._config.base_url:
             client_kwargs["base_url"] = self._config.base_url
@@ -44,8 +44,8 @@ class SGLangProvider(BaseLLM):
         # Debug: Print the config and kwargs
         import logging
         logger = logging.getLogger(__name__)
-        logger.debug(f"SGLangProvider config: {self._config}")
-        logger.debug(f"SGLang client kwargs: {client_kwargs}")
+        logger.debug(f"VLLMProvider config: {self._config}")
+        logger.debug(f"VLLM client kwargs: {client_kwargs}")
         
         # Additional debug info
         logger.debug(f"Base URL being used: {client_kwargs.get('base_url', 'Not set')}")
@@ -66,7 +66,7 @@ class SGLangProvider(BaseLLM):
             
         except TypeError as e:
             # Log the error for debugging
-            logger.error(f"TypeError when initializing SGLang client: {e}")
+            logger.error(f"TypeError when initializing VLLM client: {e}")
             # If there's still an issue with parameters, try with minimal args
             if "proxies" in str(e):
                 # Retry with only essential parameters
@@ -85,7 +85,7 @@ class SGLangProvider(BaseLLM):
     
     def call_llm(self, prompt: str, images: Optional[Union[str, list[str]]] = None):
         """
-        Call SGLang API
+        Call VLLM API
         
         Args:
             prompt: Prompt
@@ -99,7 +99,7 @@ class SGLangProvider(BaseLLM):
         # Debug: Print the request details
         import logging
         logger = logging.getLogger(__name__)
-        logger.debug(f"Sending request to SGLang API with model: {self._config.model or 'default'}")
+        logger.debug(f"Sending request to VLLM API with model: {self._config.model or 'default'}")
         logger.debug(f"Messages: {messages}")
         
         try:
@@ -113,10 +113,10 @@ class SGLangProvider(BaseLLM):
                 request_kwargs["response_format"] = response_format
 
             completion = self._client.chat.completions.create(**request_kwargs)
-            logger.debug(f"Received response from SGLang API: {completion}")
+            logger.debug(f"Received response from VLLM API: {completion}")
             return completion.choices[0].message.content
         except Exception as e:
-            logger.error(f"Error calling SGLang API: {str(e)}")
+            logger.error(f"Error calling VLLM API: {str(e)}")
             raise
         
         
