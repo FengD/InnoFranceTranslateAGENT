@@ -8,4 +8,4 @@ dashscope>=1.14.1
 zhipuai==2.0.1
 jinja2
 python-multipart
-mcp
+mcp==1.26.0
