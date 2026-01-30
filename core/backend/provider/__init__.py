@@ -7,20 +7,25 @@
 @File     : __init__.py
 """
 
-from .openai_provider import OpenAIProvider
-from .ollama_provider import OllamaProvider
-from .qwen_provider import QwenProvider
-from .glm_provider import GLMProvider
-from .deepseek_provider import DeepSeekProvider
-from .sglang_provider import SGLangProvider
-from .vllm_provider import VLLMProvider
+from importlib import import_module
 
-__all__ = [
-    "OpenAIProvider",
-    "OllamaProvider",
-    "QwenProvider",
-    "GLMProvider",
-    "DeepSeekProvider",
-    "SGLangProvider",
-    "VLLMProvider"
+
+_PROVIDERS = [
+    ("OpenAIProvider", ".openai_provider"),
+    ("OllamaProvider", ".ollama_provider"),
+    ("QwenProvider", ".qwen_provider"),
+    ("GLMProvider", ".glm_provider"),
+    ("DeepSeekProvider", ".deepseek_provider"),
+    ("SGLangProvider", ".sglang_provider"),
+    ("VLLMProvider", ".vllm_provider"),
 ]
+
+__all__ = []
+
+for name, module_path in _PROVIDERS:
+    try:
+        module = import_module(module_path, package=__name__)
+        globals()[name] = getattr(module, name)
+        __all__.append(name)
+    except Exception:
+        continue

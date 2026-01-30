@@ -35,8 +35,8 @@
         </div>
         
         <div class="form-group">
-          <label class="label" for="model_name">Model Name (Optional)</label>
-          <input type="text" id="model_name" class="input" placeholder="e.g., gpt-3.5-turbo, qwen-turbo, etc.">
+          <label class="label" for="model_name">Model Name (Required)</label>
+          <input type="text" id="model_name" class="input" required placeholder="e.g., gpt-3.5-turbo, qwen-turbo, etc.">
         </div>
         
         <div class="form-group">
@@ -64,7 +64,7 @@
         <button id="submit-btn" class="button" type="button">Start Translation</button>
         
         <div id="hint" class="hint">
-          Select a model and provide text or JSON file to translate.
+          Provide a model name and text or JSON file to translate.
         </div>
       </section>
 
@@ -106,12 +106,16 @@
         const promptType = document.getElementById('prompt_type').value;
         const textInput = document.getElementById('text_input').value;
         
+        if (modelName.trim() === '') {
+          document.getElementById('error').textContent = 'Please provide a model name.';
+          document.getElementById('loading').style.display = 'none';
+          return;
+        }
+
         // Create FormData object
         const formData = new FormData();
         formData.append('provider', provider);
-        if (modelName.trim() !== '') {
-            formData.append('model_name', modelName);
-        }
+        formData.append('model_name', modelName.trim());
         formData.append('prompt_type', promptType);
         
         if (fileInput.files.length > 0) {

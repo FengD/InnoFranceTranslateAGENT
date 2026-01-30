@@ -23,6 +23,12 @@ Product-grade French-to-Chinese colloquial translation for multi-speaker transcr
 pip install -r requirements.txt
 ```
 
+Environment variables are optional. A sample file is provided:
+
+```bash
+cp env.example .env
+```
+
 ### Run the Web Service
 
 ```bash
@@ -33,7 +39,7 @@ Open `http://localhost:8000`.
 
 ### Web UI
 
-- Select provider and optional model name
+- Select provider and required model name
 - Upload JSON or plain text
 - View and copy translation output
 
@@ -44,6 +50,7 @@ Translate a JSON file:
 ```bash
 curl -X POST http://localhost:8000/translate \
   -F "provider=openai" \
+  -F "model_name=gpt-4o-mini" \
   -F "file=@test_data/sample.json"
 ```
 
@@ -52,10 +59,11 @@ Translate text directly:
 ```bash
 curl -X POST http://localhost:8000/translate \
   -F "provider=openai" \
+  -F "model_name=gpt-4o-mini" \
   -F 'text_input={"segments":[{"text":"Bonjour, comment allez-vous?","speaker":"SPEAKER1"}]}'
 ```
 
-Override model:
+Model name (required):
 
 ```bash
 curl -X POST http://localhost:8000/translate \
@@ -68,10 +76,10 @@ curl -X POST http://localhost:8000/translate \
 
 ```bash
 # Basic usage
-python -m app.cli --input test_data/sample.json --provider openai
+python -m app.cli --input test_data/sample.json --provider openai --model-name gpt-4o-mini
 
 # Save output to file
-python -m app.cli --input test_data/sample.json --output result.txt --provider openai
+python -m app.cli --input test_data/sample.json --output result.txt --provider openai --model-name gpt-4o-mini
 
 # Override model name
 python -m app.cli --input test_data/sample.json --provider deepseek --model-name deepseek-chat
@@ -81,7 +89,7 @@ CLI options:
 - `--input`, `-i`: Input file path (JSON or TXT) (required)
 - `--output`, `-o`: Output file path (optional, defaults to stdout)
 - `--provider`, `-p`: LLM provider (openai, ollama, qwen, glm, deepseek, sglang, vllm)
-- `--model-name`, `-m`: Model override (optional)
+- `--model-name`, `-m`: Model name (required)
 - `--prompt-type`: Prompt type (`translate`, `summary`, `check`)
 
 ### MCP Server (stdio)
@@ -109,16 +117,16 @@ Add to your MCP client configuration:
 python -m app.mcp_server --transport sse --host 0.0.0.0 --port 8000
 ```
 
-Use your MCP client to connect to the server host and port. The exact SSE endpoints are managed by FastMCP.
+Use your MCP client to connect to the server host and port. The exact SSE endpoints are managed by FastMCP, and the host/port are configured when FastMCP is initialized.
 
 ![App screenshot](docs/mcp_test.png)
 
 ### MCP Tools
 
-- `translate_text(text, provider="openai", model_name=None, prompt_type="translate")`
-- `translate_json(input_json, provider="openai", model_name=None, prompt_type="translate")`
-- `translate_from_file(input_path, provider="openai", model_name=None, prompt_type="translate")`
-- `translate_and_save(input_path, output_path, provider="openai", model_name=None, prompt_type="translate")`
+- `translate_text(text, model_name, provider="openai", prompt_type="translate")`
+- `translate_json(input_json, model_name, provider="openai", prompt_type="translate")`
+- `translate_from_file(input_path, model_name, provider="openai", prompt_type="translate")`
+- `translate_and_save(input_path, output_path, model_name, provider="openai", prompt_type="translate")`
 
 ### Input Format
 
@@ -148,6 +156,8 @@ Each segment contains:
 The translation result is returned as a single text block with speaker context preserved.
 
 ### Environment Variables
+
+`env.example` lists all supported environment variables and sample values.
 
 General:
 - `LOG_LEVEL`: `DEBUG|INFO|WARNING|ERROR` (default `INFO`)

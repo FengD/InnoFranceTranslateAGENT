@@ -28,7 +28,7 @@ def _parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
         choices=["openai", "ollama", "qwen", "glm", "deepseek", "sglang", "vllm"],
         help="LLM provider to use",
     )
-    parser.add_argument("--model-name", "-m", help="Specific model name to use (optional)")
+    parser.add_argument("--model-name", "-m", required=True, help="Specific model name to use")
     parser.add_argument(
         "--prompt-type",
         default="translate",
@@ -49,8 +49,7 @@ def _setup_logger() -> None:
 def _build_agent(args: argparse.Namespace) -> TranslationAgent:
     llm_type = LLMType(args.provider)
     llm_config = LLMConfig.from_args(args, llm_type)
-    if args.model_name:
-        llm_config.model = args.model_name
+    llm_config.model = args.model_name
     return TranslationAgent(
         config.get_all(),
         llm_config,
