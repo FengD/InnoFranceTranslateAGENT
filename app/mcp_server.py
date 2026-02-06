@@ -20,10 +20,17 @@ setup_logging(config.get("LOG_LEVEL", "INFO"), config.get("LOG_FILE", "logs/tran
 logger = get_logger("translation_mcp")
 
 
-def _build_agent(provider: str, model_name: str, prompt_type: str) -> TranslationAgent:
+def _build_agent(
+    provider: str,
+    model_name: str,
+    prompt_type: str,
+    api_key: Optional[str] = None,
+) -> TranslationAgent:
     llm_type = LLMType(provider)
     llm_config = LLMConfig.from_args(type("Args", (), config.get_all())(), llm_type)
     llm_config.model = model_name
+    if api_key:
+        llm_config.api_key = api_key
     return TranslationAgent(
         config.get_all(),
         llm_config,
@@ -48,6 +55,7 @@ def create_mcp(host: str, port: int) -> FastMCP:
         model_name: str,
         provider: str = "openai",
         prompt_type: str = "translate",
+        api_key: Optional[str] = None,
     ) -> dict:
         """
         Translate plain text.
@@ -63,7 +71,7 @@ def create_mcp(host: str, port: int) -> FastMCP:
         try:
             if not model_name.strip():
                 raise ValueError("model_name is required")
-            agent = _build_agent(provider, model_name, prompt_type)
+            agent = _build_agent(provider, model_name, prompt_type, api_key=api_key)
             result = agent.translate({"text": text}, provider)
             return {"success": True, "result": result}
         except Exception as exc:
@@ -76,6 +84,7 @@ def create_mcp(host: str, port: int) -> FastMCP:
         model_name: str,
         provider: str = "openai",
         prompt_type: str = "translate",
+        api_key: Optional[str] = None,
     ) -> dict:
         """
         Translate JSON input with segments or text.
@@ -92,7 +101,7 @@ def create_mcp(host: str, port: int) -> FastMCP:
             input_data = _parse_json_payload(input_json)
             if not model_name.strip():
                 raise ValueError("model_name is required")
-            agent = _build_agent(provider, model_name, prompt_type)
+            agent = _build_agent(provider, model_name, prompt_type, api_key=api_key)
             result = agent.translate(input_data, provider)
             return {"success": True, "result": result}
         except Exception as exc:
@@ -105,6 +114,7 @@ def create_mcp(host: str, port: int) -> FastMCP:
         model_name: str,
         provider: str = "openai",
         prompt_type: str = "translate",
+        api_key: Optional[str] = None,
     ) -> dict:
         """
         Translate data from a JSON or text file.
@@ -123,7 +133,7 @@ def create_mcp(host: str, port: int) -> FastMCP:
                 raise ValueError("Input data format is incorrect")
             if not model_name.strip():
                 raise ValueError("model_name is required")
-            agent = _build_agent(provider, model_name, prompt_type)
+            agent = _build_agent(provider, model_name, prompt_type, api_key=api_key)
             result = agent.translate(data, provider)
             return {"success": True, "result": result}
         except Exception as exc:
@@ -137,6 +147,7 @@ def create_mcp(host: str, port: int) -> FastMCP:
         model_name: str,
         provider: str = "openai",
         prompt_type: str = "translate",
+        api_key: Optional[str] = None,
     ) -> dict:
         """
         Translate an input file and save the result.
@@ -156,7 +167,7 @@ def create_mcp(host: str, port: int) -> FastMCP:
                 raise ValueError("Input data format is incorrect")
             if not model_name.strip():
                 raise ValueError("model_name is required")
-            agent = _build_agent(provider, model_name, prompt_type)
+            agent = _build_agent(provider, model_name, prompt_type, api_key=api_key)
             result = agent.translate(data, provider)
             output_file = Path(output_path)
             output_file.parent.mkdir(parents=True, exist_ok=True)
