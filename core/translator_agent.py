@@ -75,7 +75,10 @@ class TranslationAgent:
             processed_input = self._preprocess_input(input_data)
             
             # Split input to avoid exceeding token limits
-            input_chunks = self._split_input_by_tokens(processed_input)
+            if self.prompt_type == "summary":
+                input_chunks = [processed_input]
+            else:
+                input_chunks = self._split_input_by_tokens(processed_input)
 
             # Call specified model API for each chunk
             results = []
@@ -84,7 +87,17 @@ class TranslationAgent:
                 translation_result = self._call_model_api(prompt, model_type)
                 results.append(self._postprocess_output(translation_result))
 
-            final_result = "\n".join([r for r in results if r.strip()])
+            if self.prompt_type == "summary" and len(results) > 1:
+                combined = " ".join([r for r in results if r.strip()])
+                final_prompt = self._construct_prompt(combined)
+                final_output = self._call_model_api(final_prompt, model_type)
+                final_result = self._normalize_summary_output(
+                    self._postprocess_output(final_output)
+                )
+            else:
+                final_result = "\n".join([r for r in results if r.strip()])
+                if self.prompt_type == "summary":
+                    final_result = self._normalize_summary_output(final_result)
             
             # Record success metrics
             duration = time.time() - start_time
@@ -131,13 +144,16 @@ class TranslationAgent:
         Returns:
             Complete prompt
         """
+        prefix = self._prompt_prefix()
+        return f"{prefix}{input_text}"
+
+    def _prompt_prefix(self) -> str:
         prefix_map = {
             "translate": "Please translate the following content:\n",
             "summary": "Please summarize the following content:\n",
             "check": "Please check and format the following content:\n",
         }
-        prefix = prefix_map.get(self.prompt_type, "Please process the following content:\n")
-        return f"{prefix}{input_text}"
+        return prefix_map.get(self.prompt_type, "Please process the following content:\n")
 
     def _estimate_tokens(self, text: str) -> int:
         """Estimate token count using a simple character ratio heuristic."""
@@ -161,7 +177,7 @@ class TranslationAgent:
             return [input_text]
 
         system_tokens = self._estimate_tokens(self.prompt_template)
-        overhead_tokens = self._estimate_tokens("Please translate the following content:\n")
+        overhead_tokens = self._estimate_tokens(self._prompt_prefix())
         available_tokens = max(max_tokens - system_tokens - overhead_tokens, 200)
 
         if self._estimate_tokens(input_text) <= available_tokens:
@@ -249,3 +265,8 @@ class TranslationAgent:
                 cleaned_lines.append(line)
         
         return '\n'.join(cleaned_lines)
+
+    def _normalize_summary_output(self, output: str) -> str:
+        """Force summary output into a single paragraph."""
+        normalized = " ".join(output.replace("\r", "\n").split())
+        return normalized.strip()
