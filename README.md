@@ -1,13 +1,13 @@
 ## InnoFrance Translation Agent
 
-Product-grade French-to-Chinese colloquial translation for multi-speaker transcripts. Use the web UI, CLI, or MCP server (stdio or SSE) to integrate with local tools and LLM workflows.
+Product-grade French-to-Chinese colloquial translation for multi-speaker transcripts, plus summary/check/polish prompts. Use the web UI, CLI, or MCP server (stdio or SSE) to integrate with local tools and LLM workflows.
 
 ![App screenshot](docs/doc.png)
 
 ### Key Features
 
 - FastAPI service with a clean web UI and form endpoint
-- CLI for batch translation
+- CLI for batch translation, summary, check, and polish
 - MCP server for LLM workflows (stdio or SSE transport)
 - Multi-provider support: OpenAI, Ollama, Qwen, GLM, DeepSeek, SGLang, VLLM
 - Prometheus metrics, structured logs, and configurable inputs
@@ -41,7 +41,7 @@ Open `http://localhost:8000`.
 
 - Select provider and required model name
 - Upload JSON or plain text
-- View and copy translation output
+- View and copy translate/summary/check/polish output
 
 ### API Usage (curl)
 
@@ -90,7 +90,7 @@ CLI options:
 - `--output`, `-o`: Output file path (optional, defaults to stdout)
 - `--provider`, `-p`: LLM provider (openai, ollama, qwen, glm, deepseek, sglang, vllm)
 - `--model-name`, `-m`: Model name (required)
-- `--prompt-type`: Prompt type (`translate`, `summary`, `check`)
+- `--prompt-type`: Prompt type (`translate`, `summary`, `check`, `polish`)
 
 ### MCP Server (stdio)
 
@@ -123,7 +123,7 @@ Use your MCP client to connect to the server host and port. The exact SSE endpoi
 
 ### MCP Tools
 
-- `translate_text(text, model_name, provider="openai", prompt_type="translate")`
+- `translate_text(text, model_name, provider="openai", prompt_type="translate")` (`prompt_type` supports `summary`, `check`, `polish`)
 - `translate_json(input_json, model_name, provider="openai", prompt_type="translate")`
 - `translate_from_file(input_path, model_name, provider="openai", prompt_type="translate")`
 - `translate_and_save(input_path, output_path, model_name, provider="openai", prompt_type="translate")`
@@ -201,6 +201,7 @@ InnoFranceTranslateAGENT/
 │   ├── translate.md
 │   ├── summary.md
 │   ├── check.md
+│   ├── polish.md
 │   └── backend/
 │       ├── configs/
 │       └── provider/

@@ -32,8 +32,8 @@ def _parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
     parser.add_argument(
         "--prompt-type",
         default="translate",
-        choices=["translate", "summary", "check"],
-        help="Prompt type to use (translate, summary, check)",
+        choices=["translate", "summary", "check", "polish"],
+        help="Prompt type to use (translate, summary, check, polish)",
     )
     add_llm_arguments(parser)
     return parser.parse_args(argv)

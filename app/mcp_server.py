@@ -64,6 +64,7 @@ def create_mcp(host: str, port: int) -> FastMCP:
             text: Plain French text to translate
             provider: LLM provider (default: openai)
             model_name: Model name (required)
+            prompt_type: Prompt type (translate, summary, check, polish)
 
         Returns:
             Dictionary with 'success', 'result', and optional 'error' keys
@@ -93,6 +94,7 @@ def create_mcp(host: str, port: int) -> FastMCP:
             input_json: JSON string with segments or { "text": "..." }
             provider: LLM provider (default: openai)
             model_name: Model name (required)
+            prompt_type: Prompt type (translate, summary, check, polish)
 
         Returns:
             Dictionary with 'success', 'result', and optional 'error' keys
@@ -123,6 +125,7 @@ def create_mcp(host: str, port: int) -> FastMCP:
             input_path: Path to the input file
             provider: LLM provider (default: openai)
             model_name: Model name (required)
+            prompt_type: Prompt type (translate, summary, check, polish)
 
         Returns:
             Dictionary with 'success', 'result', and optional 'error' keys
@@ -157,6 +160,7 @@ def create_mcp(host: str, port: int) -> FastMCP:
             output_path: Path to save the translation
             provider: LLM provider (default: openai)
             model_name: Model name (required)
+            prompt_type: Prompt type (translate, summary, check, polish)
 
         Returns:
             Dictionary with 'success', 'output_path', and optional 'error' keys

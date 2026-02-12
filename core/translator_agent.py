@@ -127,12 +127,41 @@ class TranslationAgent:
             segments_text = []
             for segment in input_data["segments"]:
                 speaker = segment.get("speaker", "UNKNOWN")
-                text = segment.get("text", "")
+                text = self._strip_subtitle_markers(segment.get("text", ""))
+                if not text:
+                    continue
                 segments_text.append(f"[{speaker}] {text}")
             return "\n".join(segments_text)
         else:
             # Process plain text
-            return str(input_data)
+            return self._strip_subtitle_markers(str(input_data))
+
+    def _strip_subtitle_markers(self, text: str) -> str:
+        """Remove common subtitle credit/source lines from input."""
+        if not text:
+            return ""
+        lines = str(text).splitlines()
+        cleaned: list[str] = []
+        for line in lines:
+            raw = line.strip()
+            if not raw:
+                continue
+            # Drop subtitle credit/source lines (e.g. "加拿大广播公司字幕")
+            if any(
+                key in raw
+                for key in (
+                    "字幕",
+                    "字幕组",
+                    "字幕翻译",
+                    "字幕制作",
+                    "字幕校对",
+                    "字幕来源",
+                    "字幕由",
+                )
+            ):
+                continue
+            cleaned.append(raw)
+        return "\n".join(cleaned)
     
     def _construct_prompt(self, input_text: str) -> str:
         """
@@ -152,6 +181,7 @@ class TranslationAgent:
             "translate": "Please translate the following content:\n",
             "summary": "Please summarize the following content:\n",
             "check": "Please check and format the following content:\n",
+            "polish": "Please polish the following content:\n",
         }
         return prefix_map.get(self.prompt_type, "Please process the following content:\n")
 
